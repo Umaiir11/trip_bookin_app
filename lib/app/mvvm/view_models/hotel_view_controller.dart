@@ -33,8 +33,8 @@ class HotelController extends GetxController {
         rating: 4.8,
         price: 299,
         images: [
-          'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa',
-          'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af',
+          'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-1.mp4'],
         amenities: ['Pool', 'Gym', 'Spa', 'Free WiFi'],
@@ -50,8 +50,8 @@ class HotelController extends GetxController {
         rating: 4.6,
         price: 249,
         images: [
-          'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9',
-          'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+          'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-2.mp4'],
         amenities: ['Beach', 'Pool', 'Spa', 'Restaurant'],
@@ -67,8 +67,8 @@ class HotelController extends GetxController {
         rating: 4.7,
         price: 320,
         images: [
-          'https://images.unsplash.com/photo-1542314831-8d54a42f2957',
-          'https://images.unsplash.com/photo-1518732714860-b62714ce0c59',
+          'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1518732714860-b62714ce0c59?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-3.mp4'],
         amenities: ['Ski Access', 'Fireplace', 'Hot Tub'],
@@ -84,8 +84,8 @@ class HotelController extends GetxController {
         rating: 4.5,
         price: 280,
         images: [
-          'https://images.unsplash.com/photo-1564501049412-3d4034e6d8e5',
-          'https://images.unsplash.com/photo-1549638441-b78e8fcee9f5',
+          'https://images.pexels.com/photos/279746/pexels-photo-279746.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1549638441-b78e8fcee9f5?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-4.mp4'],
         amenities: ['Pool', 'Golf', 'Spa', 'Free WiFi'],
@@ -101,8 +101,8 @@ class HotelController extends GetxController {
         rating: 4.9,
         price: 399,
         images: [
-          'https://images.unsplash.com/photo-1566073771259-6a8506099945',
-          'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9',
+          'https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-5.mp4'],
         amenities: ['Rooftop', 'Gym', 'Restaurant'],
@@ -118,8 +118,8 @@ class HotelController extends GetxController {
         rating: 4.8,
         price: 350,
         images: [
-          'https://images.unsplash.com/photo-1570213489059-0a0b9e6e5d86',
-          'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa',
+          'https://images.pexels.com/photos/261395/pexels-photo-261395.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-6.mp4'],
         amenities: ['Beach', 'Pool', 'Luau', 'Spa'],
@@ -135,8 +135,8 @@ class HotelController extends GetxController {
         rating: 4.6,
         price: 275,
         images: [
-          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
-          'https://images.unsplash.com/photo-1590073844006-33379778ae09',
+          'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1590073844006-33379778ae09?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-7.mp4'],
         amenities: ['Library', 'Restaurant', 'Free WiFi'],
@@ -152,8 +152,8 @@ class HotelController extends GetxController {
         rating: 4.7,
         price: 265,
         images: [
-          'https://images.unsplash.com/photo-1563911596931-25811d4c4926',
-          'https://images.unsplash.com/photo-1570213489059-0a0b9e6e5d86',
+          'https://images.pexels.com/photos/462331/pexels-photo-462331.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1570213489059-0a0b9e6e5d86?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-8.mp4'],
         amenities: ['Beach Access', 'Pool', 'Gym'],
@@ -169,8 +169,8 @@ class HotelController extends GetxController {
         rating: 4.5,
         price: 245,
         images: [
-          'https://images.unsplash.com/photo-1513635269976-827c7cf2c905',
-          'https://images.unsplash.com/photo-1549638441-b78e8fcee9f5',
+          'https://images.pexels.com/photos/271618/pexels-photo-271618.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1549638441-b78e8fcee9f5?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-9.mp4'],
         amenities: ['Lake View', 'Spa', 'Restaurant'],
@@ -186,8 +186,8 @@ class HotelController extends GetxController {
         rating: 4.8,
         price: 340,
         images: [
-          'https://images.unsplash.com/photo-1548585743-5f3c4e1a0369',
-          'https://images.unsplash.com/photo-1546410531-18626b707e96',
+          'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=300',
+          'https://images.unsplash.com/photo-1546410531-18626b707e96?auto=format&fit=crop&w=300',
         ],
         videoUrls: ['https://example.com/hotel-video-10.mp4'],
         amenities: ['Casino', 'Pool', 'Shows', 'Spa'],
@@ -195,8 +195,7 @@ class HotelController extends GetxController {
         songName: 'Viva Las Vegas',
         artistName: 'Elvis Presley',
       ),
-    ];
-  }
+    ];  }
 
   // Fetch all hotels (initial load)
   // void fetchHotelDetails() async {
@@ -224,7 +223,7 @@ class HotelController extends GetxController {
   Future<void> getHotelById(String hotelId) async {
     isLoading.value = true;
     try {
-      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+      // await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
 
       // Find hotel in the list
       final foundHotel = hotelsList.firstWhere(

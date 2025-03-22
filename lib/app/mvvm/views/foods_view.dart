@@ -6,18 +6,20 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import '../../configs/app_colors.dart';
 import '../../configs/app_routes.dart';
+import '../models/dto/food_model.dart';
 import '../models/dto/hotel_model.dart';
+import '../view_models/food_controller.dart';
 import '../view_models/hotel_view_controller.dart';
 
-class HotelsView extends StatefulWidget {
-  const HotelsView({super.key});
+class FoodsView extends StatefulWidget {
+  const FoodsView({super.key});
 
   @override
-  State<HotelsView> createState() => _HotelsViewState();
+  State<FoodsView> createState() => _FoodsViewState();
 }
 
-class _HotelsViewState extends State<HotelsView> with SingleTickerProviderStateMixin {
-  final HotelController controller = Get.find<HotelController>();
+class _FoodsViewState extends State<FoodsView> with SingleTickerProviderStateMixin {
+  final FoodController controller = Get.find();
   late TabController _tabController;
 
   @override
@@ -76,7 +78,7 @@ class _HotelsViewState extends State<HotelsView> with SingleTickerProviderStateM
                 ),              // TabBarView with Filtered Grid
                 Expanded(
                   child: Obx(() {
-                    List<Hotel> filteredHotels = controller.hotelsList;
+                    List<Food> filteredHotels = controller.foodsList;
                     return MasonryGridView.count(
                       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
                       crossAxisCount: 2,
@@ -87,11 +89,11 @@ class _HotelsViewState extends State<HotelsView> with SingleTickerProviderStateM
                         final hotel = filteredHotels[index];
                         return FadeInUp(
                           duration: Duration(milliseconds: 400 * (index + 1)),
-                          child: HotelTile(
+                          child: FoodlTile(
                             hotel: hotel,
                             onTap: () {
                               Get.toNamed(
-                                Routes.hotel,
+                                Routes.food,
                                 arguments: {'hotelId': hotel.id},
                               );
                             },
@@ -110,11 +112,11 @@ class _HotelsViewState extends State<HotelsView> with SingleTickerProviderStateM
   }
 }
 
-class HotelTile extends StatelessWidget {
-  final Hotel hotel;
+class FoodlTile extends StatelessWidget {
+  final Food hotel;
   final VoidCallback onTap;
 
-  const HotelTile({
+  const FoodlTile({
     super.key,
     required this.hotel,
     required this.onTap,
@@ -186,7 +188,7 @@ class HotelTile extends StatelessWidget {
                       SizedBox(width: 6.w),
                       Expanded(
                         child: Text(
-                          hotel.location,
+                          hotel.cuisine,
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: Colors.grey[700],

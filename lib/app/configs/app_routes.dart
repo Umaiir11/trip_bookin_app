@@ -6,4 +6,5 @@ abstract class Routes {
   static const food = '/food';
   static const activities = '/activities';
   static const profile = '/profile';
+  static const itineraryDisplay = '/itineraryDisplay';
 }
