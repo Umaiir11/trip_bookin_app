@@ -7,7 +7,7 @@ class DiscoveryController extends GetxController {
   final RxList<Trip> savedTrips = <Trip>[].obs;
   final RxList<Trip> recommendations = <Trip>[].obs;
   final RxBool isLoading = true.obs;
-  final RxString currentLocation = "London".obs;
+  final RxString currentLocation = "US".obs;
   final RxList<Trip> allTrips = <Trip>[].obs; // Store all trips
 
   @override

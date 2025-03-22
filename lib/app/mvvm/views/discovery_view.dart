@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import '../../configs/app_colors.dart';
 import '../../configs/app_routes.dart';
 import '../view_models/discovery_view_controller.dart';
@@ -15,20 +14,15 @@ class DiscoveryView extends StatefulWidget {
   State<DiscoveryView> createState() => _DiscoveryViewState();
 }
 
-class _DiscoveryViewState extends State<DiscoveryView> with TickerProviderStateMixin {
+class _DiscoveryViewState extends State<DiscoveryView> {
   final DiscoveryController controller = Get.find<DiscoveryController>();
-
-  @override
-  void dispose() {
-    // Ensure any custom tickers or controllers are disposed here if added later
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
+          // Background Gradient
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -41,42 +35,48 @@ class _DiscoveryViewState extends State<DiscoveryView> with TickerProviderStateM
               ),
             ),
           ),
+          // Main Content
           SafeArea(
             child: Obx(() {
               if (controller.isLoading.value) {
                 return Center(
-                  child: FadeIn( // Replaced Swing to avoid ticker issues
-                    duration: const Duration(milliseconds: 800),
-                    child: const CircularProgressIndicator(
+                  child: FadeIn(
+                    duration: Duration(milliseconds: 800),
+                    child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                     ),
                   ),
                 );
               }
 
-              return CustomScrollView(
-                slivers: [
-                  _buildSliverAppBar(),
-                  SliverToBoxAdapter(child: _buildSearchBar()),
-                  SliverToBoxAdapter(child: _buildSavedTripsSection()),
-                  SliverToBoxAdapter(child: _buildRecommendationsSection()),
-                  SliverToBoxAdapter(child: SizedBox(height: 60.h)),
-                ],
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    _buildSearchBar(),
+                    _buildSavedTripsSection(),
+                    _buildRecommendationsSection(),
+                    SizedBox(height: 80.h), // Space for FAB
+                  ],
+                ),
               );
             }),
           ),
+          // Floating Action Button
           Positioned(
-            bottom: 15.h,
-            right: 15.w,
+            bottom: 20.h,
+            right: 20.w,
             child: Jello(
               duration: const Duration(milliseconds: 1000),
               child: FloatingActionButton(
-                onPressed: () {
-                  Get.snackbar('Map', 'Full map view coming soon!',
-                      backgroundColor: AppColors.primary.withOpacity(0.9),
-                      colorText: Colors.white,
-                      snackPosition: SnackPosition.TOP);
-                },
+                onPressed: () => Get.snackbar(
+                  'Map',
+                  'Full map view coming soon!',
+                  backgroundColor: AppColors.primary.withOpacity(0.9),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.TOP,
+                ),
                 backgroundColor: AppColors.primary,
                 mini: true,
                 child: const Icon(Icons.map, color: Colors.white, size: 20),
@@ -88,107 +88,113 @@ class _DiscoveryViewState extends State<DiscoveryView> with TickerProviderStateM
     );
   }
 
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      expandedHeight: 160.h,
-      floating: false,
-      pinned: true,
-      stretch: true,
-      backgroundColor: Colors.transparent,
-      flexibleSpace: FlexibleSpaceBar(
-        stretchModes: const [StretchMode.zoomBackground],
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
+  Widget _buildHeader() {
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(bottom: Radius.circular(30.r)),
+      child: CachedNetworkImage(
+        imageUrl: 'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          color: Colors.grey[300],
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: Colors.grey[300],
+          child: const Icon(Icons.error),
+        ),
+        imageBuilder: (context, imageProvider) => Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 25.h),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: imageProvider,
               fit: BoxFit.cover,
-              color: Colors.black.withOpacity(0.3),
-              colorBlendMode: BlendMode.darken,
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.primary.withOpacity(0.4),
-                    Colors.transparent,
-                  ],
-                ),
+              colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.9),
+                BlendMode.dstATop,
               ),
             ),
-            Positioned(
-              top: 30.h,
-              left: 15.w,
-              child: FlipInX(
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.1),
+                blurRadius: 20.r,
+                offset: Offset(0, 10.h),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BounceInDown(
+                duration: const Duration(milliseconds: 1000),
+                child: Text(
+                  'Next Escape',
+                  style: TextStyle(
+                    fontSize: 32.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.5,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.5),
+                        blurRadius: 2.r,
+                        offset: Offset(1, 1),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.h),
+              FadeInUp(
                 duration: const Duration(milliseconds: 800),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        FadeIn( // Replaced Swing
-                          duration: const Duration(milliseconds: 1000),
-                          child: const Icon(Icons.location_pin, color: Colors.white, size: 18),
-                        ),
-                        SizedBox(width: 5.w),
-                        Text(
-                          'In ${controller.currentLocation}',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            shadows: [Shadow(color: Colors.black45, blurRadius: 4)],
+                    Icon(Icons.location_pin, color: AppColors.primary, size: 22.sp),
+                    SizedBox(width: 10.w),
+                    Text(
+                      'In ${controller.currentLocation}',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 2.r,
+                            offset: Offset(1, 1),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    BounceInDown(
-                      duration: const Duration(milliseconds: 1000),
-                      child: Text(
-                        'Next Escape',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-
   Widget _buildSearchBar() {
     return BounceInUp(
       duration: const Duration(milliseconds: 800),
       delay: const Duration(milliseconds: 200),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
-        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
+        margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 20.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.95),
           borderRadius: BorderRadius.circular(30.r),
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withOpacity(0.15),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+              blurRadius: 15.r,
+              offset: Offset(0, 5.h),
             ),
           ],
         ),
         child: Row(
           children: [
-            const Icon(Icons.search, color: AppColors.primary, size: 20),
-            SizedBox(width: 8.w),
+            Icon(Icons.search, color: AppColors.primary, size: 24.sp),
+            SizedBox(width: 12.w),
             Expanded(
               child: TextField(
                 decoration: InputDecoration(
@@ -196,7 +202,7 @@ class _DiscoveryViewState extends State<DiscoveryView> with TickerProviderStateM
                   hintText: 'Where to?',
                   hintStyle: TextStyle(
                     color: Colors.grey[600],
-                    fontSize: 14.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -204,12 +210,12 @@ class _DiscoveryViewState extends State<DiscoveryView> with TickerProviderStateM
             ),
             ZoomIn(
               child: Container(
-                padding: EdgeInsets.all(6.w),
+                padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.tune, color: AppColors.primary, size: 18),
+                child: Icon(Icons.tune, color: AppColors.primary, size: 20.sp),
               ),
             ),
           ],
@@ -219,312 +225,308 @@ class _DiscoveryViewState extends State<DiscoveryView> with TickerProviderStateM
   }
 
   Widget _buildSavedTripsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
-          child: FlipInX(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlipInX(
             duration: const Duration(milliseconds: 700),
             child: Text(
               'Saved Trips',
               style: TextStyle(
-                fontSize: 18.sp,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
           ),
-        ),
-        controller.savedTrips.isEmpty
-            ? Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.w),
-          child: FadeInUp(
+          SizedBox(height: 15.h),
+          controller.savedTrips.isEmpty
+              ? FadeInUp(
             child: Text(
               'No saved trips yet',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12.sp),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
             ),
-          ),
-        )
-            : SizedBox(
-          height: 190.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            itemCount: controller.savedTrips.length,
-            itemBuilder: (context, index) {
-              final trip = controller.savedTrips[index];
-              return FadeInRight(
-                duration: const Duration(milliseconds: 800),
-                delay: Duration(milliseconds: index * 200),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.toNamed(Routes.tripDetails, arguments: {'tripId': trip.id});
-                  },
-                  child: Container(
-                    width: 160.w,
-                    margin: EdgeInsets.only(right: 12.w),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Positioned(
-                          top: 25.h,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: 160.h,
-                            padding: EdgeInsets.all(12.w),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  trip.name,
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+          )
+              : SizedBox(
+            height: 200.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.savedTrips.length,
+              itemBuilder: (context, index) {
+                final trip = controller.savedTrips[index];
+                return FadeInRight(
+                  duration: const Duration(milliseconds: 800),
+                  delay: Duration(milliseconds: index * 200),
+                  child: GestureDetector(
+                    onTap: () => Get.toNamed(Routes.tripDetails, arguments: {'tripId': trip.id}),
+                    child: Container(
+                      width: 160.w,
+                      margin: EdgeInsets.only(right: 15.w),
+                      child: Stack(
+                        alignment: Alignment.topCenter, // Align stack content better
+                        children: [
+                          Positioned(
+                            top: 40.h, // Adjusted for better alignment
+                            child: Container(
+                              height: 160.h,
+                              width: 160.w,
+                              padding: EdgeInsets.all(12.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withOpacity(0.1),
+                                    blurRadius: 12.r,
+                                    offset: Offset(0, 6.h),
                                   ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 8.h),
-                                Row(
-                                  children: [
-                                    Icon(Icons.event, size: 12.sp, color: AppColors.primary),
-                                    SizedBox(width: 6.w),
-                                    Expanded(
-                                      child: Text(
-                                        '${trip.startDate}',
-                                        style: TextStyle(
-                                          fontSize: 10.sp,
-                                          color: Colors.grey[700],
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    trip.name,
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.event, size: 14.sp, color: AppColors.primary),
+                                      SizedBox(width: 6.w),
+                                      Expanded(
+                                        child: Text(
+                                          '${trip.startDate}',
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            color: Colors.grey[700],
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 8.h),
-                                Wrap(
-                                  spacing: 6.w,
-                                  runSpacing: 4.h,
-                                  children: trip.destinations.take(2).map((dest) => Chip(
-                                    label: Text(
-                                      dest,
-                                      style: TextStyle(fontSize: 8.sp, color: AppColors.primary),
-                                    ),
-                                    backgroundColor: AppColors.primary.withOpacity(0.1),
-                                    padding: EdgeInsets.symmetric(horizontal: 6.w),
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  )).toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: -15.h,
-                          left: 15.w,
-                          child: Hero(
-                            tag: 'tripImage_${trip.id}', // Unique tag for Hero animation
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12.r),
-                              child: CachedNetworkImage(
-                                imageUrl: trip.imageUrl,
-                                height: 100.h,
-                                width: 130.w,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  height: 100.h,
-                                  width: 130.w,
-                                  color: Colors.grey[300],
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  height: 100.h,
-                                  width: 130.w,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.error, size: 20),
-                                ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Wrap(
+                                    spacing: 8.w,
+                                    runSpacing: 6.h,
+                                    children: trip.destinations
+                                        .take(2)
+                                        .map(
+                                          (dest) => Chip(
+                                        label: Text(
+                                          dest,
+                                          style: TextStyle(fontSize: 10.sp, color: AppColors.primary),
+                                        ),
+                                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                    )
+                                        .toList(),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-  Widget _buildRecommendationsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
-          child: FlipInX(
-            duration: const Duration(milliseconds: 700),
-            child: Text(
-              'For You',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-        ),
-        controller.recommendations.isEmpty
-            ? Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.w),
-          child: FadeInUp(
-            child: Text(
-              'No recommendations',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12.sp),
-            ),
-          ),
-        )
-            : SizedBox(
-          height: 220.h,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            itemCount: controller.recommendations.length,
-            itemBuilder: (context, index) {
-              final trip = controller.recommendations[index];
-              return FadeInRight(
-                duration: const Duration(milliseconds: 800),
-                delay: Duration(milliseconds: index * 150),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.toNamed('/tripDetails', arguments: {'tripId': trip.id});
-                  },
-                  child: Container(
-                    width: 140.w,
-                    margin: EdgeInsets.only(right: 10.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Hero(
-                          tag: 'tripImage_${trip.id}', // Unique tag matching TripDetailsPage
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15.r),
-                            child: Stack(
-                              children: [
-                                CachedNetworkImage(
+                          Positioned(
+                            top: 0, // Adjusted to prevent overflow
+                            child: Hero(
+                              tag: 'tripImage_${trip.id}',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15.r),
+                                child: CachedNetworkImage(
                                   imageUrl: trip.imageUrl,
-                                  height: 160.h,
+                                  height: 100.h, // Reduced to fit better
                                   width: 140.w,
                                   fit: BoxFit.cover,
                                   placeholder: (context, url) => Container(
-                                    height: 160.h,
+                                    height: 100.h,
                                     width: 140.w,
                                     color: Colors.grey[300],
                                   ),
                                   errorWidget: (context, url, error) => Container(
-                                    height: 160.h,
+                                    height: 100.h,
                                     width: 140.w,
                                     color: Colors.grey[300],
-                                    child: const Icon(Icons.error),
+                                    child: const Icon(Icons.error, size: 20),
                                   ),
                                 ),
-                                Positioned(
-                                  top: 8.h,
-                                  right: 8.w,
-                                  child: ZoomIn(
-                                    child: Container(
-                                      padding: EdgeInsets.all(4.w),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.9),
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.1),
-                                            blurRadius: 5,
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Icon(Icons.favorite_border,
-                                          size: 16, color: AppColors.primary),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: Container(
-                                    padding: EdgeInsets.all(8.w),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Colors.transparent,
-                                          Colors.black.withOpacity(0.7)
-                                        ],
-                                      ),
-                                    ),
-                                    child: Text(
-                                      trip.name,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.bold,
-                                        shadows: [
-                                          Shadow(color: Colors.black45, blurRadius: 2)
-                                        ],
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Row(
-                          children: [
-                            FadeIn(
-                              child: Icon(Icons.map, size: 12.sp, color: AppColors.primary),
-                            ),
-                            SizedBox(width: 5.w),
-                            Expanded(
-                              child: Text(
-                                trip.destinations.join(', '),
-                                style: TextStyle(fontSize: 10.sp, color: Colors.grey[800]),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+          SizedBox(height: 25.h),
+        ],
+      ),
     );
-  }}
+  }
+
+  Widget _buildRecommendationsSection() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlipInX(
+            duration: const Duration(milliseconds: 700),
+            child: Text(
+              'For You',
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          SizedBox(height: 15.h),
+          controller.recommendations.isEmpty
+              ? FadeInUp(
+            child: Text(
+              'No recommendations',
+              style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
+            ),
+          )
+              : SizedBox(
+            height: 240.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.recommendations.length,
+              itemBuilder: (context, index) {
+                final trip = controller.recommendations[index];
+                return FadeInRight(
+                  duration: const Duration(milliseconds: 800),
+                  delay: Duration(milliseconds: index * 150),
+                  child: GestureDetector(
+                    onTap: () => Get.toNamed('/tripDetails', arguments: {'tripId': trip.id}),
+                    child: Container(
+                      width: 150.w,
+                      margin: EdgeInsets.only(right: 15.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Hero(
+                            tag: 'tripImage_${trip.id}',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20.r),
+                              child: Stack(
+                                children: [
+                                  CachedNetworkImage(
+                                    imageUrl: trip.imageUrl,
+                                    height: 180.h,
+                                    width: 150.w,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      height: 180.h,
+                                      width: 150.w,
+                                      color: Colors.grey[300],
+                                    ),
+                                    errorWidget: (context, url, error) => Container(
+                                      height: 180.h,
+                                      width: 150.w,
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.error),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 10.h,
+                                    right: 10.w,
+                                    child: ZoomIn(
+                                      child: Container(
+                                        padding: EdgeInsets.all(6.w),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.9),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.1),
+                                              blurRadius: 6.r,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          Icons.favorite_border,
+                                          size: 18.sp,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: EdgeInsets.all(10.w),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.transparent,
+                                            Colors.black.withOpacity(0.7),
+                                          ],
+                                        ),
+                                      ),
+                                      child: Text(
+                                        trip.name,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [Shadow(color: Colors.black45, blurRadius: 2.r)],
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Row(
+                            children: [
+                              Icon(Icons.map, size: 14.sp, color: AppColors.primary),
+                              SizedBox(width: 6.w),
+                              Expanded(
+                                child: Text(
+                                  trip.destinations.join(', '),
+                                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[800]),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: 25.h),
+        ],
+      ),
+    );
+  }
+}

@@ -8,6 +8,7 @@ import 'dto_class.dart'; // Assuming this contains DummyDataProvider
 class HotelController extends GetxController {
   final Rx<Hotel> hotel = Hotel.empty().obs;
   final RxBool isLoading = true.obs;
+  final RxBool isFavorite = true.obs;
   final RxList<Hotel> hotelsList = <Hotel>[].obs;
 
   @override
@@ -17,6 +18,10 @@ class HotelController extends GetxController {
     // fetchHotelDetails();
   }
 
+  void toggleFavorite() {
+    isFavorite.value = !isFavorite.value;
+    // Add favorite logic here
+  }
   // Initialize the hotels list with 10 sample hotels
   void initializeHotels() {
     hotelsList.value = [

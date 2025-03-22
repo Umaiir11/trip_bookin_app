@@ -1,11 +1,9 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-
+import '../../configs/app_colors.dart';
 import '../models/dto/hotel_model.dart';
 import '../view_models/hotel_view_controller.dart';
 
@@ -22,7 +20,6 @@ class _HotelViewState extends State<HotelView> {
   @override
   void initState() {
     super.initState();
-    // Get hotel ID from arguments and fetch specific hotel
     final hotelId = Get.arguments?['hotelId'] as String?;
     if (hotelId != null) {
       controller.getHotelById(hotelId);
@@ -32,97 +29,118 @@ class _HotelViewState extends State<HotelView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Obx(() {
           if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           final hotel = controller.hotel.value;
-
-          // Check if hotel is empty (not found)
           if (hotel.id.isEmpty) {
-            return const Center(
-              child: Text('Hotel not found'),
-            );
+            return const Center(child: Text('Hotel not found'));
           }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildHeader(),
-                buildVideoCard(hotel),
-                buildHotelInfo(hotel),
-              ],
-            ),
+          return CustomScrollView(
+            slivers: [
+              _buildSliverAppBar(hotel),
+              SliverToBoxAdapter(child: _buildGallery(hotel)),
+              SliverToBoxAdapter(child: _buildHotelInfo(hotel)),
+              SliverToBoxAdapter(child: SizedBox(height: 20.h)),
+            ],
           );
         }),
       ),
     );
   }
 
-  Widget buildHeader() {
-    return FadeIn(
-      duration: const Duration(milliseconds: 500),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildSliverAppBar(Hotel hotel) {
+    return SliverAppBar(
+      expandedHeight: 320.h,
+      floating: false,
+      pinned: true,
+      backgroundColor: Colors.black,
+      leading: GestureDetector(
+        onTap: () => Get.back(),
+        child: Container(
+          margin: EdgeInsets.all(10.w),
+          padding: EdgeInsets.all(8.w),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8.r,
+                offset: Offset(0, 2.h),
+              ),
+            ],
+          ),
+          child: Icon(Icons.arrow_back_ios_new, color: AppColors.primary, size: 20.sp),
+        ),
+      ),
+      actions: [
+        GestureDetector(
+          onTap: () => controller.toggleFavorite(),
+          child: Container(
+            margin: EdgeInsets.all(10.w),
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 8.r,
+                  offset: Offset(0, 2.h),
+                ),
+              ],
+            ),
+            child: Obx(() => Icon(
+              controller.isFavorite.value ? Icons.favorite : Icons.favorite_border,
+              color: controller.isFavorite.value ? Colors.red : AppColors.primary,
+              size: 20.sp,
+            )),
+          ),
+        ),
+      ],
+      flexibleSpace: FlexibleSpaceBar(
+        titlePadding: EdgeInsets.only(left: 15.w, bottom: 15.h), // Pushes title to bottom left
+        title: Align(
+          alignment: Alignment.bottomLeft, // Aligns to bottom left corner
+          child: Text(
+            hotel.name,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+              shadows: [Shadow(color: Colors.black45, blurRadius: 4.r)],
+            ),
+            textAlign: TextAlign.left, // Ensures text aligns left within its box
+          ),
+        ),
+        background: Stack(
+          fit: StackFit.expand,
           children: [
-            GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 1,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.black,
-                  size: 20,
+            Hero(
+              tag: 'hotelImage_${hotel.id}',
+              child: CachedNetworkImage(
+                imageUrl: hotel.images[0],
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(color: Colors.grey[300]),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.error),
                 ),
               ),
             ),
-            Text(
-              'Hotel Details',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            GestureDetector(
-              // Uncomment and implement toggleFavorite if needed
-              // onTap: () => controller.toggleFavorite(),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 1,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.favorite,
-                  color: Colors.red,
-                  size: 20,
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                 ),
               ),
             ),
@@ -131,240 +149,251 @@ class _HotelViewState extends State<HotelView> {
       ),
     );
   }
-
-  Widget buildVideoCard(Hotel hotel) {
-    return FadeIn(
-      duration: const Duration(milliseconds: 500),
-      delay: const Duration(milliseconds: 200),
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+  Widget _buildGallery(Hotel hotel) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Gallery',
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Stack(
-            children: [
-              Image.network(
-                hotel.images.isNotEmpty ? hotel.images[1] : 'https://via.placeholder.com/150',
-                height: 200.h,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    height: 200.h,
-                    color: Colors.grey,
-                    child: const Center(child: Text('Image not available')),
-                  );
-                },
-              ),
-              Positioned.fill(
-                child: Center(
-                  child: GestureDetector(
-                    // onTap: () => controller.playVideo(),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.8),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.blue,
-                        size: 30,
+          ),
+          SizedBox(height: 10.h),
+          SizedBox(
+            height: 220.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: hotel.images.length + hotel.videoUrls.length,
+              itemBuilder: (context, index) {
+                if (index < hotel.images.length) {
+                  // Image item
+                  return FadeInRight(
+                    duration: Duration(milliseconds: 400 * (index + 1)),
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 10.w),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15.r),
+                        child: CachedNetworkImage(
+                          imageUrl: hotel.images[index],
+                          width: 250.w,
+                          height: 220.h,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            width: 250.w,
+                            height: 220.h,
+                            color: Colors.grey[300],
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 250.w,
+                            height: 220.h,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.error, size: 20),
+                          ),
+                        ),
                       ),
                     ),
+                  );
+                } else {
+                  // Video placeholder item
+                  final videoIndex = index - hotel.images.length;
+                  return FadeInRight(
+                    duration: Duration(milliseconds: 400 * (index + 1)),
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 10.w),
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.snackbar('Video', 'Video playback coming soon: ${hotel.videoUrls[videoIndex]}');
+                        },
+                        child: Container(
+                          width: 250.w,
+                          height: 220.h,
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(15.r),
+                          ),
+                          child: Stack(
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: hotel.images[0], // Thumbnail (could use video thumbnail API)
+                                width: 250.w,
+                                height: 220.h,
+                                fit: BoxFit.cover,
+                                color: Colors.black.withOpacity(0.5),
+                                colorBlendMode: BlendMode.darken,
+                              ),
+                              Center(
+                                child: Icon(
+                                  Icons.play_circle_outline,
+                                  color: Colors.white,
+                                  size: 50.sp,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 10.h,
+                                left: 10.w,
+                                child: Text(
+                                  'Video ${videoIndex + 1}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHotelInfo(Hotel hotel) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  hotel.location,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Colors.black87,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.star, color: Colors.amber, size: 16.sp),
+                    SizedBox(width: 5.w),
+                    Text(
+                      '${hotel.rating}',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20.h),
+          Text(
+            'Amenities',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Wrap(
+            spacing: 10.w,
+            runSpacing: 10.h,
+            children: hotel.amenities.map((amenity) => _buildAmenityChip(amenity)).toList(),
+          ),
+          SizedBox(height: 20.h),
+          Text(
+            'Description',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            hotel.description,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.black87,
+              height: 1.5,
+            ),
+          ),
+          SizedBox(height: 30.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '\$${hotel.price}',
+                    style: TextStyle(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  Text(
+                    'per night',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Get.snackbar('Booking', 'Booking feature coming soon!');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 12.h),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                ),
+                child: Text(
+                  'Book Now',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildHotelInfo(Hotel hotel) {
-    return FadeIn(
-      duration: const Duration(milliseconds: 500),
-      delay: const Duration(milliseconds: 400),
-      child: Container(
-        padding: EdgeInsets.all(20.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    hotel.name,
-                    style: TextStyle(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 16,
-                      ),
-                      SizedBox(width: 5.w),
-                      Text(
-                        '${hotel.rating}',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade800,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10.h),
-            Row(
-              children: [
-                const Icon(
-                  Icons.location_on,
-                  color: Colors.grey,
-                  size: 16,
-                ),
-                SizedBox(width: 5.w),
-                Expanded(
-                  child: Text(
-                    hotel.location,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey.shade700,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                buildInfoItem(Icons.wifi, 'Free WiFi'),
-                buildInfoItem(Icons.local_parking, 'Parking'),
-                buildInfoItem(Icons.restaurant, 'Restaurant'),
-                buildInfoItem(Icons.pool, 'Pool'),
-              ],
-            ),
-            SizedBox(height: 20.h),
-            Text(
-              'Description',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 10.h),
-            Text(
-              hotel.description,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey.shade800,
-                height: 1.5,
-              ),
-            ),
-            SizedBox(height: 30.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '\$${hotel.price}',
-                      style: TextStyle(
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade800,
-                      ),
-                    ),
-                    Text(
-                      'per night',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade700,
-                    padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 12.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    'Book Now',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildInfoItem(IconData icon, String text) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: Colors.blue.shade700,
-            size: 20,
-          ),
-          SizedBox(height: 5.h),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: Colors.grey.shade700,
-            ),
-          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAmenityChip(String amenity) {
+    return Chip(
+      label: Text(
+        amenity,
+        style: TextStyle(fontSize: 12.sp, color: AppColors.primary),
+      ),
+      backgroundColor: AppColors.primary.withOpacity(0.1),
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
     );
   }
 }
